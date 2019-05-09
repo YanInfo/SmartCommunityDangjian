@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<li>
+								用户名称：<input type="text" name="name"/>
+							</li>
+							<li>
+								文章标题：<input type="text" name="title"/>
+							</li>
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        // var editFlag = [[${@permission.hasPermi('system:article:edit')}]];
+        // var removeFlag = [[${@permission.hasPermi('system:article:remove')}]];
+        var prefix = ctx + "system/article";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                lookUrl: prefix + "/lookx/{id}",
+                removeUrl: prefix + "/remove",
+				exportUrl: prefix + "/export",
+                modalName: "文章",
+				search: false,
+		        showExport: true,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'id', 
+					title : '文章编号',
+					visible: false
+				},
+				{
+					field : 'title', 
+					title : '文章',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a  href="#" onclick="lookFull(\'' + row.id + '\')">'+row.title+'&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a> 发布时间：'+row.time+'');
+                        return actions.join('');
+					}
+				}]
+            };
+            $.table.init(options);
+        });
+        // 修改信息 全屏
+        function lookFull(id) {
+            var url = "/404.html";
+                url = $.table._option.lookUrl.replace("{id}", id);
+            openFull("修改" + $.table._option.modalName, url);
+        }
+        // 弹出层全屏
+        function openFull(title, url, width, height) {
+            //如果是移动端，就使用自适应大小弹窗
+            if (navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)) {
+                width = 'auto';
+                height = 'auto';
+            }
+            if ($.common.isEmpty(title)) {
+                title = false;
+            }
+            ;
+            if ($.common.isEmpty(url)) {
+                url = "/404.html";
+            }
+            ;
+            if ($.common.isEmpty(width)) {
+                width = 800;
+            }
+            ;
+            if ($.common.isEmpty(height)) {
+                height = ($(window).height() - 50);
+            }
+            ;
+            var index = layer.open({
+                type: 2,
+                area: [width + 'px', height + 'px'],
+                fix: false,
+                //不固定
+                maxmin: true,
+                shade: 0.3,
+                title: "文章详情",
+                content: url,
+                // 弹层外区域关闭
+                shadeClose: true,
+                yes: function (index, layero) {
+                    var iframeWin = layero.find('iframe')[0];
+                    iframeWin.contentWindow.submitHandler();
+                },
+                cancel: function (index) {
+                    return true;
+                }
+            });
+            layer.full(index);
+        }
+    </script>
+</body>
+</html>

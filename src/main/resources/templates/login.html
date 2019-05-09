@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>党建</title>
+    <link type="text/css" rel="stylesheet" href="home/style.css">
+    <link rel="stylesheet" type="text/css" href="home/css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="home/css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="layer/theme/default/layer.css" />
+    <!--必要样式-->
+    <link rel="stylesheet" type="text/css" href="home/css/component.css" />
+    <!--[if IE]>
+    <script src="home/js/html5.js"></script>
+    <![endif]-->
+    <style>
+        input::-webkit-input-placeholder{
+            color:rgba(0, 0, 0, 0.726);
+        }
+        input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+            color:rgba(0, 0, 0, 0.726);
+        }
+        input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+            color:rgba(0, 0, 0, 0.726);
+        }
+        input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
+            color:rgba(0, 0, 0, 0.726);
+        }
+    </style>
+</head>
+<body onkeydown="enterSubmit(event)">
+<div class="container demo-1">
+    <div class="content">
+        <div id="large-header" class="large-header">
+            <canvas id="demo-canvas"></canvas>
+            <div class="logo_box">
+                <h3>党建</h3>
+                <form action="#" name="f" method="post" id="vive1">
+                    <div class="input_outer">
+                        <span class="u_user"></span>
+                        <input id="ID" name="logname" class="text" style="color: #000000 !important" type="text" placeholder="请输入账户">
+                    </div>
+                    <div class="input_outer">
+                        <span class="us_uer"></span>
+                        <input id="PASSWORD" name="logpass" class="text" style="color: #000000 !important; position:absolute; z-index:100;"value="" type="password" placeholder="请输入密码">
+                    </div>
+                    <div id="LOGIN" class="mb2"><a class="act-but submit" href="javascript:;" onclick="code()" style="color: #FFFFFF">登录</a></div>
+                </form>
+                <div class="verBox" style="display: none" id="vive2">
+                    <div id="imgVer" style="display:inline-block;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+<script src="home/js/TweenLite.min.js"></script>
+<script src="home/js/EasePack.min.js"></script>
+<script src="home/js/jquery.js"></script>
+<script src="home/js/rAF.js"></script>
+<script src="home/js/demo-1.js"></script>
+<script src="home/js/vendor/jgrowl/jquery.jgrowl.min.js"></script>
+<script src="layer/layer.js"></script>
+<script src="home/img_ver.js"></script>
+<div style="text-align:center;">
+<script type="text/javascript">
+   imgVer({
+        el:'$("#imgVer")',
+        width:'260',
+        height:'116',
+        img:[
+            'home/images/ver.png',
+            'home/images/ver1.png',
+            'home/images/ver2.png',
+            'home/images/ver3.png',
+            'home/images/ver4.png',
+            'home/images/ver5.png'
+        ],
+        success:function () {
+            login();
+            $("#logo").attr("src",'images/login-err.png')
+        },
+        error:function () {
+            //alert('错误什么都不执行')
+        }
+    });
+    function enterSubmit(obj) {
+        var button = document.getElementById('eventquery');
+        if (obj.keyCode == 13) {
+            code()
+        }
+    }
+    function code(){
+        $("#vive2").show();
+        $("#vive1").hide();
+    }
+    function login(){
+        var index = layer.load(1, {shade: false});
+        var ID = $("#ID").val();
+        var PASSWORD = $("#PASSWORD").val();
+        if (ID == '') {
+            layer.close(index);
+            layer.msg('请输入您的账号');
+            $("#vive1").show();
+            $("#vive2").hide();
+            return;
+        } else if (PASSWORD == '') {
+            layer.close(index);
+            layer.msg('请输入密码');
+            $("#vive1").show();
+            $("#vive2").hide();
+            return;
+        }else{
+            $.ajax({
+                type: "POST",
+                url:"/login",
+                data: {username:ID,password:PASSWORD,rememberMe:false},
+                success: function(r) {
+                    if (r.code == 0) {
+                        layer.close(index);
+                        parent.location.href ='/index';
+                    } else {
+                        layer.msg(r.msg);
+                        $("#vive1").show();
+                        $("#vive2").hide();
+                    }
+                }
+            });
+        }
+    }
+</script>
+</div>
+</body>
+</html>

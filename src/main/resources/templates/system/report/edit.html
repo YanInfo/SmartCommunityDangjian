@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/summernote/summernote.css}" rel="stylesheet"/>
+<link th:href="@{/ajax/libs/summernote/summernote-bs3.css}" rel="stylesheet"/>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-report-edit" th:object="${report}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">用户：</label>
+				<div class="col-sm-8">
+						<input th:each="user:${backstageUser}" th:value="${user.name}" class="form-control" th:if="${user.id} == *{userId}" disabled="disabled">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">事件图片：</label>
+				<div class="col-sm-8">
+					<input type="hidden" id="image" name="image">
+					<input type="file" id="file1" style="display: none;" onchange="filechange(event)"> <img th:src="*{image}" width="200px" height="200px" id="img-change1">
+					<input type="file" id="file2" style="display: none;" onchange="filechange(event)"> <img th:src="*{exp1}" width="200px" height="200px" id="img-change2">
+					<input type="file" id="file3" style="display: none;" onchange="filechange(event)"> <img th:src="*{exp2}" width="200px" height="200px" id="img-change3">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">事件标题：</label>
+				<div class="col-sm-8">
+					<input id="title" name="title" th:field="*{title}" class="form-control" type="text" disabled="disabled">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">事件正文：</label>
+				<div class="col-sm-8">
+					<input id="text" name="text" th:field="*{text}" class="form-control" type="hidden">
+					<div id="editor" class="summernote" disabled="disabled"></div>
+				</div>
+			</div>
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+	<script th:src="@{/ajax/libs/summernote/summernote.min.js}"></script>
+	<script th:src="@{/ajax/libs/summernote/summernote-zh-CN.js}"></script>
+    <script type="text/javascript">
+		var prefix = ctx + "system/report";
+        $("#img-change").click(function () {
+            $("#file").click();
+        });
+
+        function filechange(event) {
+            var files = event.target.files, file;
+            if (files && files.length > 0) {
+                // 获取目前上传的文件
+                file = files[0];// 文件大小校验的动作
+                if (file.size > 1024 * 1024 * 2) {
+                    alert('图片大小不能超过 2MB!');
+                    return false;
+                }
+                var URL = window.URL || window.webkitURL;
+                var imgURL = URL.createObjectURL(file);
+                $("#img-change").attr("src", imgURL);
+            }
+        };
+		$("#form-report-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+        $(function() {
+            $('.summernote').summernote({
+                height : '400px',
+                lang : 'zh-CN'
+            });
+            var content = $("#text").val();
+            $('#editor').summernote('code', content);
+			$('.summernote').summernote('disable');
+        });
+		function submitHandler() {
+            if ($.validate.form()) {
+                var f = document.getElementById("file").files;
+                var formData = new FormData();
+                for (var i = 0; i < f.length; i++) {
+                    formData.append('files', f[i]);
+                }
+                $.ajax({
+                    type: "POST",
+                    enctype: "multipart/form-data",
+                    url: ctx + "system/article/upload",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function (result) {
+                        if (result[0].state == 0) {
+                            alert("上传失败！")
+                        } else {
+                            $("#image").val(result[0].url);
+                            var sHTML = $('.summernote').summernote('code');
+                            $("#text").val(sHTML);
+                            $.operate.save(prefix + "/edit", $('#form-report-edit').serialize());
+                        }
+                    }
+                });
+            }
+	    }
+	</script>
+</body>
+</html>

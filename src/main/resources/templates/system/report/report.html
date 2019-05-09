@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+			<!--<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<li>
+							用户：<input type="text" name="userId"/>
+						   </li>
+							<li>
+								标题：<input type="text" name="title"/>
+							</li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>-->
+			
+	       <!-- <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="$.operate.addFull()" shiro:hasPermission="system:report:add">
+					<i class="fa fa-plus"></i> 添加
+				</a>
+				<a class="btn btn-primary btn-edit disabled" onclick="$.operate.editFull()" shiro:hasPermission="system:report:edit">
+					<i class="fa fa-edit"></i> 修改
+				</a>
+				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:report:remove">
+					<i class="fa fa-remove"></i> 删除
+				</a>
+			</div>-->
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:report:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:report:remove')}]];
+        var prefix = ctx + "system/report";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+				exportUrl: prefix + "/export",
+                modalName: "事件上报",
+				search: false,
+		        showExport: true,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'id', 
+					title : '事件标号',
+					visible: false
+				},
+				{
+					field : 'name',
+					title : '用户',
+					sortable: true
+				},
+				{
+					field : 'title', 
+					title : '事件标题',
+					sortable: true
+				},
+				{
+					field : 'text', 
+					title : '事件正文',
+					sortable: true
+				},
+				/*{
+					field : 'image',
+					title : '事件图片',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<img src="'+value+'" width="200px" height="100px" id="'+index+'" onclick="dj(\'' + index + '\')">');
+                        return actions.join('');
+                    }
+				},*/
+				{
+					field : 'time', 
+					title : '事件上报时间',
+					sortable: true
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="editFull(\'' + row.id + '\')"><i class="fa fa-paste"></i>详情</a> ');
+                        /*actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');*/
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+        function dj(index){
+            var imgs = new Image();
+            var img = document.getElementById(index);
+            imgs.src = img.src;
+            if(document.getElementById(index).width == 200 && document.getElementById(index).height ==100){
+                document.getElementById(index).width = imgs.width
+                document.getElementById(index).height = imgs.height
+            }else{
+                document.getElementById(index).width = 200
+                document.getElementById(index).height = 100
+            }
+        };
+		// 修改信息 全屏
+		 function editFull(id) {
+			var url = "/404.html";
+			if ($.common.isNotEmpty(id)) {
+				url = $.table._option.updateUrl.replace("{id}", id);
+			} else {
+				var row = $.common.isEmpty($.table._option.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns($.table._option.uniqueId);
+				url = $.table._option.updateUrl.replace("{id}", row);
+			}
+			openFull("修改" + $.table._option.modalName, url);
+		}
+		// 弹出层全屏
+		function openFull(title, url, width, height) {
+			//如果是移动端，就使用自适应大小弹窗
+			if (navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)) {
+				width = 'auto';
+				height = 'auto';
+			}
+			if ($.common.isEmpty(title)) {
+				title = false;
+			}
+			;
+			if ($.common.isEmpty(url)) {
+				url = "/404.html";
+			}
+			;
+			if ($.common.isEmpty(width)) {
+				width = 800;
+			}
+			;
+			if ($.common.isEmpty(height)) {
+				height = ($(window).height() - 50);
+			}
+			;
+			var index = layer.open({
+				type: 2,
+				area: [width + 'px', height + 'px'],
+				fix: false,
+				//不固定
+				maxmin: true,
+				shade: 0.3,
+				title: "事件上报详情",
+				content: url,
+				// 弹层外区域关闭
+				shadeClose: true,
+				yes: function (index, layero) {
+					var iframeWin = layero.find('iframe')[0];
+					iframeWin.contentWindow.submitHandler();
+				},
+				cancel: function (index) {
+					return true;
+				}
+			});
+			layer.full(index);
+		}
+    </script>
+</body>
+</html>

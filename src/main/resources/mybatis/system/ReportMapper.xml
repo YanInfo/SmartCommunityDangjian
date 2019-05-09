@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dangjian.project.system.report.mapper.ReportMapper">
+    
+    <resultMap type="Report" id="ReportResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="name"    column="name"    />
+        <result property="title"    column="title"    />
+        <result property="text"    column="text"    />
+        <result property="image"    column="image"    />
+        <result property="time"    column="time"    />
+        <result property="exp1"    column="exp1"    />
+        <result property="exp2"    column="exp2"    />
+    </resultMap>
+	
+	<sql id="selectReportVo">
+        select id, user_id, name, title, text, image, time, exp1, exp2 from smart_report
+    </sql>
+	
+    <select id="selectReportList" parameterType="Report" resultMap="ReportResult">
+        select sr.id, sr.user_id,sr.title, sr.text, sr.image, sr.time, sr.exp1, sr.exp2,smart_backstage_user.name from smart_report sr
+        left join smart_backstage_user on smart_backstage_user.user_id = sr.user_id
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="userId != null "> and sr.user_id = #{userId}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="title != null  and title != '' "> and title = #{title}</if>
+             <if test="text != null  and text != '' "> and text = #{text}</if>
+             <if test="image != null  and image != '' "> and image = #{image}</if>
+             <if test="time != null "> and time = #{time}</if>
+             <if test="exp1 != null  and exp1 != '' "> and exp1 = #{exp1}</if>
+             <if test="exp2 != null  and exp2 != '' "> and exp2 = #{exp2}</if>
+         </where>
+    </select>
+    
+    <select id="selectReportById" parameterType="Integer" resultMap="ReportResult">
+        <include refid="selectReportVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertReport" parameterType="Report">
+        insert into smart_report
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="userId != null  ">user_id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="title != null  and title != ''  ">title,</if>
+			<if test="text != null  and text != ''  ">text,</if>
+			<if test="image != null  and image != ''  ">image,</if>
+			time,
+			<if test="exp1 != null  and exp1 != ''  ">exp1,</if>
+			<if test="exp2 != null  and exp2 != ''  ">exp2,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="userId != null  ">#{userId},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="title != null  and title != ''  ">#{title},</if>
+			<if test="text != null  and text != ''  ">#{text},</if>
+			<if test="image != null  and image != ''  ">#{image},</if>
+			now(),
+			<if test="exp1 != null  and exp1 != ''  ">#{exp1},</if>
+			<if test="exp2 != null  and exp2 != ''  ">#{exp2},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateReport" parameterType="Report">
+        update smart_report
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  ">user_id = #{userId},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="title != null  and title != ''  ">title = #{title},</if>
+            <if test="text != null  and text != ''  ">text = #{text},</if>
+            <if test="image != null  and image != ''  ">image = #{image},</if>
+            <if test="time != null  ">time = #{time},</if>
+            <if test="exp1 != null  and exp1 != ''  ">exp1 = #{exp1},</if>
+            <if test="exp2 != null  and exp2 != ''  ">exp2 = #{exp2},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteReportById" parameterType="Integer">
+        delete from smart_report where id = #{id}
+    </delete>
+	
+    <delete id="deleteReportByIds" parameterType="String">
+        delete from smart_report where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

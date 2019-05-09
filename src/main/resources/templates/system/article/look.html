@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<body class="white-bg">
+<div th:object="${article}">
+		<div class="right_nr">
+			<input type="hidden" id="id" name="id" th:value="*{id}">
+			<h1 th:text="*{title}" style="text-align: center"></h1>
+			<ul style="text-align: center">
+				<span style="text-align: center" th:text="*{#dates.format(time,'yyyy年MM月dd日')}"></span>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="js">60秒</span>
+			</ul>
+		</div>
+		<div class="right_nr01" style="text-align: center">
+
+			<p th:utext="*{text}"></p>
+		</div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+    <script type="text/javascript">
+            var i = 60;
+            var Timer = setInterval(function () {
+                i--;
+                $("#js").text(i + "秒");
+                if (i == -1) {
+                    clearInterval(Timer);
+                    $("#js").text(0 + "秒");
+					$.get("/system/backstageUser/editIntegral",{ id:$("#id").val() }, function(data){
+						if(data == 1){
+							layer.msg('文章阅读积分加5',{offset: 'rt'});
+						}
+					});
+                }
+            }, 1000)
+	</script>
+</body>
+</html>

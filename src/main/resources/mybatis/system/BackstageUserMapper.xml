@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dangjian.project.system.backstageUser.mapper.BackstageUserMapper">
+    
+    <resultMap type="BackstageUser" id="BackstageUserResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="name"    column="name"    />
+        <result property="phone"    column="phone"    />
+        <result property="address"    column="address"    />
+        <result property="buildingId"    column="building_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="integral"    column="integral"    />
+        <result property="exp1"    column="exp1"    />
+        <result property="exp2"    column="exp2"    />
+    </resultMap>
+	
+	<sql id="selectBackstageUserVo">
+        select id, user_id, name, phone, address, building_id, create_time, integral, exp1, exp2 from smart_backstage_user
+    </sql>
+	
+    <select id="selectBackstageUserList" parameterType="BackstageUser" resultMap="BackstageUserResult">
+        <include refid="selectBackstageUserVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="userId != null "> and user_id = #{userId}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+             <if test="address != null  and address != '' "> and address = #{address}</if>
+             <if test="buildingId != null  and buildingId != '' "> and building_id = #{buildingId}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="integral != null "> and integral = #{integral}</if>
+             <if test="exp1 != null  and exp1 != '' "> and exp1 = #{exp1}</if>
+             <if test="exp2 != null  and exp2 != '' "> and exp2 = #{exp2}</if>
+         </where>
+    </select>
+    
+    <select id="selectBackstageUserById" parameterType="Integer" resultMap="BackstageUserResult">
+        <include refid="selectBackstageUserVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBackstageUser" parameterType="BackstageUser">
+        insert into smart_backstage_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">id,</if>
+			<if test="userId != null  ">user_id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="phone != null  and phone != ''  ">phone,</if>
+			<if test="address != null  and address != ''  ">address,</if>
+			<if test="buildingId != null  and buildingId != ''  ">building_id,</if>
+			create_time,
+			<if test="integral != null  ">integral,</if>
+			<if test="exp1 != null  and exp1 != ''  ">exp1,</if>
+			<if test="exp2 != null  and exp2 != ''  ">exp2,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  ">#{id},</if>
+			<if test="userId != null  ">#{userId},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="phone != null  and phone != ''  ">#{phone},</if>
+			<if test="address != null  and address != ''  ">#{address},</if>
+			<if test="buildingId != null  and buildingId != ''  ">#{buildingId},</if>
+			now(),
+			<if test="integral != null  ">#{integral},</if>
+			<if test="exp1 != null  and exp1 != ''  ">#{exp1},</if>
+			<if test="exp2 != null  and exp2 != ''  ">#{exp2},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateBackstageUser" parameterType="BackstageUser">
+        update smart_backstage_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  ">user_id = #{userId},</if>
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="phone != null  and phone != ''  ">phone = #{phone},</if>
+            <if test="address != null  and address != ''  ">address = #{address},</if>
+            <if test="buildingId != null  and buildingId != ''  ">building_id = #{buildingId},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="integral != null  ">integral = #{integral},</if>
+            <if test="exp1 != null  and exp1 != ''  ">exp1 = #{exp1},</if>
+            <if test="exp2 != null  and exp2 != ''  ">exp2 = #{exp2},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="editIntegral" parameterType="BackstageUser">
+        update smart_backstage_user set integral = integral+5  where id = #{id}
+    </update>
+
+    <insert id="saveVolunteer" parameterType="Map">
+        insert into smart_backstage_volunteer (backstage_user_id,volunteer_id) VALUES (#{userId},#{volunteerId})
+    </insert>
+
+	<delete id="deleteBackstageUserById" parameterType="Integer">
+        delete from smart_backstage_user where id = #{id};
+        delete from sys_user where user_id = #{id};
+        delete from sys_user_role where user_id = #{id};
+    </delete>
+	
+    <delete id="deleteBackstageUserByIds" parameterType="String">
+        delete from smart_backstage_user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>;
+        delete from sys_user where user_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>;
+        delete from sys_user_role where user_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>;
+    </delete>
+    
+</mapper>
